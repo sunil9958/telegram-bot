@@ -13,15 +13,10 @@ BOT_TOKEN = "7339282485:AAE5EtsGRTbv6XFtY14ZLubJV6n7eA1fuOg"
 
 # 🔹 APIs
 TERABOX_API = "http://ashlynn.serv00.net/terapre.php?url="
-MODIJI_API_KEY = "20bb8e8e7b6fb1ccfa4165aa4b55036c44f75ced"
-MODIJI_VERIFY_API = "https://modijiurl.in/api/check.php?token={}&url=https://t.me/YOUR_BOT_USERNAME"
 
 # 🔹 Download Folder
 DOWNLOAD_PATH = "downloads"
 os.makedirs(DOWNLOAD_PATH, exist_ok=True)
-
-# 🔹 User Verification Data
-verified_users = {}
 
 # 🔹 Logging Setup
 logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s", level=logging.INFO)
@@ -37,14 +32,8 @@ async def start(client, message):
 # 🔹 Process TeraBox Links
 @bot.on_message(filters.text)
 async def process_terabox_links(client, message):
-    user_id = message.from_user.id
     user_message = message.text.strip()
     links = user_message.split()
-
-    # 🔹 Verify User Every 6 Hours
-    if not verify_user(user_id):
-        await message.reply_text("🔐 Please verify yourself first. Send /verify to continue.")
-        return
 
     if not all("terabox" in link for link in links):
         await message.reply_text("❌ Please send valid TeraBox links.")
@@ -85,28 +74,6 @@ async def process_terabox_links(client, message):
                 await message.reply_text("⚠️ Failed to fetch video link. Try again later.")
         else:
             await message.reply_text("🚨 Error fetching video from TeraBox.")
-
-# 🔹 User Verification
-@bot.on_message(filters.command("verify"))
-async def verify(client, message):
-    user_id = message.from_user.id
-    verify_url = MODIJI_VERIFY_API.format(MODIJI_API_KEY)
-    response = requests.get(verify_url).json()
-
-    if response.get("status") == "success":
-        # Save verification time
-        verified_users[user_id] = datetime.now()
-        await message.reply_text("✅ You are now verified for the next 6 hours.")
-    else:
-        await message.reply_text("❌ Verification failed. Please try again.")
-
-# 🔹 Function to Verify User Every 6 Hours
-def verify_user(user_id):
-    if user_id in verified_users:
-        last_verified = verified_users[user_id]
-        if datetime.now() - last_verified < timedelta(hours=6):
-            return True
-    return False
 
 # 🔹 Function to Download Video
 def download_video(url, save_path):
