@@ -1,0 +1,4 @@
+pyrogram==1.2.9
+requests==2.25.1
+tqdm==4.56.0
+tgcrypto==1.2.0
