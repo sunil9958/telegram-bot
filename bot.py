@@ -92,8 +92,9 @@ async def verify(client, message):
     user_id = message.from_user.id
     verify_url = MODIJI_VERIFY_API.format(MODIJI_API_KEY)
     response = requests.get(verify_url).json()
-    
+
     if response.get("status") == "success":
+        # Save verification time
         verified_users[user_id] = datetime.now()
         await message.reply_text("✅ You are now verified for the next 6 hours.")
     else:
